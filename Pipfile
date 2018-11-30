@@ -11,6 +11,7 @@ flask-pymongo = "*"
 pymongo = "*"
 flask-cors = "*"
 gunicorn = "*"
+username-generator = "*"
 
 [requires]
 python_version = "3.6"
