@@ -53,6 +53,7 @@ def show_user_profile(uuid):
         geojson = panda['data']
         if geojson is not None:
             return json.dumps({
+                u"uuid": uuid,
                 u"bbox": panda['bbox'],
                 u"description": panda['description'],
                 u"geojson": geojson}), 200, {'Content-Type': 'application/json'}
