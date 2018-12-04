@@ -33,13 +33,18 @@ def hello_world():
 @app.route('/p/<uuid>',  methods=['POST', 'GET'])
 def show_user_profile(uuid):
     if request.method == 'POST':
-        data = request.get_json()
-        if data is not None:
+        payload = request.get_json()
+        print(payload)
+        if payload is not None:
             mongo.db.pandas.insert({
                 '_id': uuid,
                 '_user_id': username_generator.get_uname(2, 20, True),
                 'insert_ts': int(time.time()),
-                'data': data})
+                'description': payload['description'],
+                'bbox': payload['bbox'],
+                'data': payload['geojson']}
+            )
+
             return 'Added %s' % uuid, 200
         return "Missing data", 400
     else:
@@ -47,7 +52,10 @@ def show_user_profile(uuid):
         panda = mongo.db.pandas.find_one_or_404({"_id": uuid})
         geojson = panda['data']
         if geojson is not None:
-            return json.dumps(geojson), 200, {'Content-Type': 'application/json'}
+            return json.dumps({
+                u"bbox": panda['bbox'],
+                u"description": panda['description'],
+                u"geojson": geojson}), 200, {'Content-Type': 'application/json'}
         return "Not found", 400
 
 
