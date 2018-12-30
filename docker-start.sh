@@ -16,4 +16,4 @@ do
   fi
 done
 
-#exec gunicorn -w ${WORKERS} -b 0.0.0.0:8000 ${GUNICORN_LOG} --enable-stdio-inheritance pandas:app
+exec gunicorn -w ${WORKERS} -b 0.0.0.0:8000 ${GUNICORN_LOG} --enable-stdio-inheritance pandas:app
