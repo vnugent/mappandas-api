@@ -6,7 +6,9 @@ import username_generator
 import urllib
 import json
 import os
+import sys
 import time
+import email_service
 
 app = Flask(__name__)
 CORS(app)
@@ -20,9 +22,22 @@ db_password = os.getenv('DB_PASS', 'password')
 app.config['MONGO_URI'] = "mongodb://{}:{}@{}:{}/pandas?authSource=admin".format(db_user, urllib.parse.quote(db_password), db_host, db_port)
 mongo = PyMongo(app)
 
+print("---------------------")
 print("Testing db connection ...")
 print(mongo.cx.server_info())
+print("Testing email service ...")
+
+try:
+    email_service.preflight_check()
+except RuntimeWarning as e:
+    print('WARNING! ' + (str(e)))
+    print('Email service may not work properly')
+except Exception as e:
+    print(str(e))
+    sys.exit(4)
+
 print("KUDOS!")
+print("---------------------")
 
 
 @app.route('/')
@@ -31,7 +46,7 @@ def hello_world():
 
 
 @app.route('/p/<uuid>',  methods=['POST', 'GET'])
-def show_user_profile(uuid):
+def add_or_get_panda(uuid):
     if request.method == 'POST':
         payload = request.get_json()
         print(payload)
@@ -68,4 +83,19 @@ def show_last_n_pandas(count):
         limit = int(count)
     rs = mongo.db.pandas.find().sort([("insert_ts", -1)]).limit(limit)
     return json.dumps(list(rs))
+
+
+@app.route('/email', methods=['POST'])
+def sendemail():
+    payload = request.get_json()
+    if payload is None:
+        return "Json payload empty", 400
+
+    panda = mongo.db.pandas.find_one_or_404({"_id": payload['uuid']})
+    geojson = panda['data']
+    if geojson is not None:
+        description = panda['description']
+        email_service.sendmail(payload['uuid'], description, payload['email'])
+        return "OK", 200
+    return "Not found", 404
 
