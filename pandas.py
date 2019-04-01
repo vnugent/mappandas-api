@@ -91,11 +91,19 @@ def sendemail():
     if payload is None:
         return "Json payload empty", 400
 
-    panda = mongo.db.pandas.find_one_or_404({"_id": payload['uuid']})
+    uuid = payload['uuid']
+    email = payload['email']
+    panda = mongo.db.pandas.find_one_or_404({"_id": uuid})
     geojson = panda['data']
     if geojson is not None:
         description = panda['description']
-        email_service.sendmail(payload['uuid'], description, payload['email'])
+        status = email_service.sendmail(uuid, description, email)
+        mongo.db.emails.insert({
+            '_id': uuid,
+            'email': email,
+            'status': status,
+            'insert_ts': int(time.time())}
+        )
         return "OK", 200
     return "Not found", 404
 

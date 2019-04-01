@@ -7,13 +7,13 @@ message_template = ("""From: Viet Nguyen <hola@mappandas.com>
 To: <{2}>
 Subject: Your Panda 
 Panda link:
-https://mappandas.com/p/{0}
+https://app.mappandas.com/p/{0}
 
 Description:
 {1}
 
 ---
-Ps: My name is Viet Nguyen and I'm the maker of MapPandas.  """
+Ps: My name is Viet Nguyen and I'm the creator of Map Pandas.  """
            """If you have any questions about the app, please hit 'reply' and let me know.
 
 This email was sent from hola@mappandas.com
