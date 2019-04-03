@@ -53,11 +53,10 @@ def add_or_get_panda(uuid):
         if payload is not None:
             mongo.db.pandas.insert({
                 '_id': uuid,
-                '_user_id': username_generator.get_uname(2, 20, True),
+                'userid': payload['userid'],
                 'insert_ts': int(time.time()),
-                'description': payload['description'],
                 'bbox': payload['bbox'],
-                'data': payload['geojson']}
+                'data': payload['content']}
             )
 
             return 'Added %s' % uuid, 200
@@ -65,13 +64,13 @@ def add_or_get_panda(uuid):
     else:
         print("Looking up {}".format(uuid))
         panda = mongo.db.pandas.find_one_or_404({"_id": uuid})
-        geojson = panda['data']
-        if geojson is not None:
+        content = panda['data']
+        if content is not None:
             return json.dumps({
                 u"uuid": uuid,
+                u"userid": panda['userid'],
                 u"bbox": panda['bbox'],
-                u"description": panda['description'],
-                u"geojson": geojson}), 200, {'Content-Type': 'application/json'}
+                u"content": content}), 200, {'Content-Type': 'application/json'}
         return "Not found", 400
 
 
@@ -96,8 +95,8 @@ def sendemail():
     panda = mongo.db.pandas.find_one_or_404({"_id": uuid})
     geojson = panda['data']
     if geojson is not None:
-        description = panda['description']
-        status = email_service.sendmail(uuid, description, email)
+        # description = panda['description']
+        status = email_service.sendmail(uuid, "", email)
         mongo.db.emails.insert({
             '_id': uuid,
             'email': email,
