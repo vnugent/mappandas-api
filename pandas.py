@@ -2,7 +2,6 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from flask_pymongo import PyMongo
-import username_generator
 import urllib
 import json
 import os
@@ -53,10 +52,11 @@ def add_or_get_panda(uuid):
         if payload is not None:
             mongo.db.pandas.insert({
                 '_id': uuid,
-                'userid': payload['userid'],
+                'userid': payload.get('userid'),
                 'insert_ts': int(time.time()),
-                'bbox': payload['bbox'],
-                'data': payload['content']}
+                'bbox': payload.get('bbox', []),
+                'title': payload.get('title', ''),
+                'data': payload.get('content', {})}
             )
 
             return 'Added %s' % uuid, 200
@@ -68,8 +68,9 @@ def add_or_get_panda(uuid):
         if content is not None:
             return json.dumps({
                 u"uuid": uuid,
-                u"userid": panda['userid'],
-                u"bbox": panda['bbox'],
+                u"userid": panda.get('userid', ''),
+                u"bbox": panda.get('bbox', []),
+                u"title": panda.get('title', ''),
                 u"content": content}), 200, {'Content-Type': 'application/json'}
         return "Not found", 400
 
