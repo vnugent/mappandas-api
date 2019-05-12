@@ -48,7 +48,8 @@ def hello_world():
 def add_or_get_panda(uuid):
     if request.method == 'POST':
         payload = request.get_json()
-        print(payload)
+        print("Inserting {} ".format(uuid))
+
         if payload is not None:
             mongo.db.pandas.insert({
                 '_id': uuid,
@@ -56,7 +57,9 @@ def add_or_get_panda(uuid):
                 'insert_ts': int(time.time()),
                 'bbox': payload.get('bbox', []),
                 'title': payload.get('title', ''),
-                'data': payload.get('content', {})}
+                'data': payload.get('content', {}),
+                'meta': payload.get('meta', {})
+                }
             )
 
             return 'Added %s' % uuid, 200
@@ -71,6 +74,7 @@ def add_or_get_panda(uuid):
                 u"userid": panda.get('userid', ''),
                 u"bbox": panda.get('bbox', []),
                 u"title": panda.get('title', ''),
+                u"meta": panda.get('meta', ''),
                 u"content": content}), 200, {'Content-Type': 'application/json'}
         return "Not found", 400
 
