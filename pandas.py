@@ -81,11 +81,19 @@ def add_or_get_panda(uuid):
 
 @app.route('/lastn/<count>')
 def show_last_n_pandas(count):
-    if 10 >= int(count)< 0:
+    if 10 >= int(count) < 0:
         limit = 10
     else:
         limit = int(count)
-    rs = mongo.db.pandas.find().sort([("insert_ts", -1)]).limit(limit)
+
+    is_featured = request.args.get('featured')
+
+    if is_featured is not None and is_featured.upper() == 'TRUE':
+        mongo_filter = {'meta.featured': {'$exists': True}}
+    else:
+        mongo_filter = {'meta.featured': {'$exists': False}}
+
+    rs = mongo.db.pandas.find(mongo_filter).sort([("insert_ts", -1)]).limit(limit)
     return json.dumps(list(rs))
 
 
