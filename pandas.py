@@ -97,6 +97,12 @@ def show_last_n_pandas(count):
     return json.dumps(list(rs))
 
 
+@app.route('/posts_by_user/<userid>')
+def get_posts_by_user(userid):
+    posts = mongo.db.pandas.find({"userid": {'$eq': userid}}).sort([("insert_ts", -1)])
+    return json.dumps(list(posts))
+
+
 @app.route('/email', methods=['POST'])
 def sendemail():
     payload = request.get_json()
